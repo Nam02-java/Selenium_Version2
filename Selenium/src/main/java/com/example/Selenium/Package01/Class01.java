@@ -97,6 +97,9 @@ public class Class01 {
         Thread threadESC = new Thread(new Check_ESC(driver, wait, latch));
         Thread threadHandAD = new Thread(new Check_HandAD(driver, wait, latch));
         Thread threadHostAD = new Thread(new Check_HostAD(driver, wait, latch));
+        Thread thread_AD_TOP = new Thread(new Check_AD_TOP(driver));
+        Thread thread_AD_BOTTOM = new Thread(new Check_AD_BOTTOM(driver));
+
         threadESC.start();
         threadHandAD.start();
         threadHostAD.start();
@@ -124,8 +127,7 @@ public class Class01 {
         } catch (Exception e) {
             System.out.println(e);
         }
-        
-        driver.switchTo().defaultContent();
+
         driver.findElement(By.xpath("//input[@name='txt_username']")).sendKeys(user_name);
         driver.findElement(By.xpath("//input[@name='txt_password']")).sendKeys(user_password);
         driver.findElement(By.xpath("//ins[@class='iCheck-helper']")).click();
@@ -168,17 +170,8 @@ public class Class01 {
         Element_inputText = driver.findElement(By.xpath("//*[@id=\"input_text\"]"));
         js.executeScript("arguments[0].scrollIntoView();", Element_inputText);
 
-        element_solve = driver.findElements(By.xpath("//ins[@data-anchor-status='displayed']"));
-        if (element_solve.size() > 0 && element_solve.get(0).isDisplayed()) {
-            System.out.println("ad 1 displayed");
-            driver.findElement(By.xpath("(//div[@class='grippy-host'])[1]")).click();
-        }
-
-        element_solve = driver.findElements(By.xpath("(//img[@title='Ad.Plus Advertising'])[1]"));
-        if (element_solve.size() > 0 && element_solve.get(0).isDisplayed()) {
-            System.out.println("ad 2 displayed");
-            driver.findElement(By.xpath("(//img[@title='Ad.Plus Advertising'])[1]")).click();
-        }
+        thread_AD_TOP.start(); // AD TOP
+        thread_AD_BOTTOM.start(); // AD BOTTOM
 
         driver.findElement(By.xpath("//*[@id=\"input_text\"]")).clear();
         driver.findElement(By.xpath("//*[@id=\"input_text\"]")).sendKeys(text);
@@ -197,13 +190,20 @@ public class Class01 {
             driver.findElement(By.xpath("//button[@aria-label='Close this dialog']")).click();
         }
 
-        if (voice.equals(male_voice)) {
-            wait = new WebDriverWait(driver, Duration.ofSeconds(10));
-            wait.until(ExpectedConditions.elementToBeClickable(By.xpath(male_voice))).click();
-        } else {
-            wait = new WebDriverWait(driver, Duration.ofSeconds(10));
-            wait.until(ExpectedConditions.elementToBeClickable(By.xpath(female_voice))).click();
-        }
+        Thread thread_maleVoice = new Thread(() -> {
+            if (voice.equals("Male")) {
+                WebDriverWait wait_maleVoice = new WebDriverWait(driver, Duration.ofSeconds(10));
+                wait_maleVoice.until(ExpectedConditions.elementToBeClickable(By.xpath(male_voice))).click();
+            }
+        });
+        Thread thread_femaleVoice = new Thread(() -> {
+            if (voice.equals("Female")) {
+                WebDriverWait wait_femaleVoice = new WebDriverWait(driver, Duration.ofSeconds(10));
+                wait_femaleVoice.until(ExpectedConditions.elementToBeClickable(By.xpath(female_voice))).click();
+            }
+        });
+        thread_maleVoice.start();
+        thread_femaleVoice.start();
 
         driver.findElement(By.xpath("//*[@id=\"frm_tts\"]/div[2]/div[2]/div[1]/a")).click();
 
