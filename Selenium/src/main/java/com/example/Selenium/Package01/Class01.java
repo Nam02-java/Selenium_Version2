@@ -221,6 +221,7 @@ public class Class01 {
         }
 
         try {
+            js.executeScript("arguments[0].scrollIntoView();", Element_inputText);
             wait = new WebDriverWait(driver, Duration.ofSeconds(10)); //5
             wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//*[@id=\"progessResults\"]/div[2]/center[1]/div/a")));
             element_solve = driver.findElements(By.xpath("//*[@id=\"progessResults\"]/div[2]/center[1]/div/a"));
